@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup - DoodleDesk</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      background: url('home.jpg') no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .signup-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
+      text-align: center;
+      color: white;
+    }
+
+    .signup-box h2 {
+      margin-bottom: 20px;
+    }
+
+    .signup-box input,
+    .signup-box select,
+    .signup-box button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .signup-box input,
+    .signup-box select {
+      background: #f1f1f1;
+    }
+
+    .signup-box button {
+      background: #ff9800;
+      color: white;
+      cursor: pointer;
+    }
+
+    .signup-box button:hover {
+      background: #e68900;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="signup-box">
+    <h2>Create Account</h2>
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+
+      <select id="loginType" required>
+        <option value="">Select Login Type</option>
+        <option value="student">Student</option>
+        <option value="staff">Staff</option>
+      </select>
+
+      <!-- Student Fields -->
+      <input type="text" id="studentId" placeholder="Student ID" class="hidden">
+
+      <!-- Staff Fields -->
+      <select id="staffType" class="hidden">
+        <option value="">Select Staff Type</option>
+        <option value="teaching">Teaching</option>
+        <option value="non-teaching">Non-Teaching</option>
+      </select>
+
+      <select id="branch" class="hidden">
+        <option value="">Select Branch</option>
+        <option value="CSE">CSE</option>
+        <option value="IT">IT</option>
+        <option value="ENTC">ENTC</option>
+        <option value="Mech">Mechanical</option>
+        <option value="Civil">Civil</option>
+      </select>
+
+      <button type="submit">Sign Up</button>
+      <p id="errorMsg" class="error"></p>
+    </form>
+  </div>
+
+  <script>
+    const loginType = document.getElementById("loginType");
+    const studentId = document.getElementById("studentId");
+    const staffType = document.getElementById("staffType");
+    const branch = document.getElementById("branch");
+    const errorMsg = document.getElementById("errorMsg");
+
+    loginType.addEventListener("change", () => {
+      studentId.classList.add("hidden");
+      staffType.classList.add("hidden");
+      branch.classList.add("hidden");
+
+      if (loginType.value === "student") {
+        studentId.classList.remove("hidden");
+      } else if (loginType.value === "staff") {
+        staffType.classList.remove("hidden");
+      }
+    });
+
+    staffType.addEventListener("change", () => {
+      if (staffType.value === "teaching") {
+        branch.classList.remove("hidden");
+      } else {
+        branch.classList.add("hidden");
+      }
+    });
+
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const login = loginType.value;
+      const student = studentId.value.trim();
+      const staff = staffType.value;
+      const selectedBranch = branch.value;
+
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+      const studentIdRegex = /^[0-9]+$/;
+
+      // Validations
+      if (!usernameRegex.test(username)) {
+        errorMsg.textContent = "Username can only contain letters, numbers, and _";
+        return;
+      }
+      if (!passwordRegex.test(password)) {
+        errorMsg.textContent = "Password must be 8+ chars, 1 uppercase, 1 number, and 1 symbol!";
+        return;
+      }
+      if (login === "") {
+        errorMsg.textContent = "Please select a login type!";
+        return;
+      }
+      if (login === "student") {
+        if (!studentIdRegex.test(student)) {
+          errorMsg.textContent = "Student ID must contain only numbers!";
+          return;
+        }
+      }
+      if (login === "staff") {
+        if (staff === "") {
+          errorMsg.textContent = "Please select staff type!";
+          return;
+        }
+        if (staff === "teaching" && selectedBranch === "") {
+          errorMsg.textContent = "Please select a branch!";
+          return;
+        }
+      }
+
+      // Determine specific role
+      let finalRole = login;
+      if (login === "staff") {
+        if (staff === "teaching") finalRole = "teacher";
+        else if (staff === "non-teaching") finalRole = "staff";
+      }
+
+      // API Call
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username,
+            password,
+            role: finalRole,
+            fullname: login === "student" ? "Student " + student : "Staff Member",
+            // Send additional details if needed by backend schema in future
+            details: {
+              studentId: student,
+              branch: selectedBranch,
+              staffType: staff
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          errorMsg.textContent = "";
+          alert("✅ Signup successful! Please login.");
+          window.location.href = login === "student" ? "student-login.html" : "staff-login.html";
+        } else {
+          errorMsg.textContent = data.error || "Signup failed";
+        }
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = "Server error. Please try again.";
+      }
+    });
+  </script>
+</body>
+
+</html>

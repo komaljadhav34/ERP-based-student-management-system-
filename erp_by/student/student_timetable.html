@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | Timetable</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>College ERP</h2></div>
+    <nav class="sidebar-nav">
+      <a href="student_home.html">🏠 Home</a>
+      <a href="student_attendance.html">📋 Attendance</a>
+      <a href="student_attendance_detail.html">📅 Attendance Detail</a>
+      <a href="student_marks.html">📊 Marks</a>
+      <a href="student_timetable.html" class="active">🕒 Timetable</a>
+      <a href="#">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <h1>Weekly Timetable</h1>
+    </header>
+
+    <section class="content">
+      <div class="card full">
+        <table>
+          <thead>
+            <tr><th>Day</th><th>9:00-10:00</th><th>10:00-11:00</th><th>11:00-12:00</th><th>2:00-3:00</th><th>3:00-4:00</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mon</td><td>DBMS</td><td>OS</td><td>CN</td><td>--</td><td>ST</td></tr>
+            <tr><td>Tue</td><td>CN</td><td>ST</td><td>DBMS</td><td>OS</td><td>--</td></tr>
+            <tr><td>Wed</td><td>ST</td><td>DBMS</td><td>OS</td><td>--</td><td>CN</td></tr>
+            <tr><td>Thu</td><td>OS</td><td>ST</td><td>CN</td><td>DBMS</td><td>--</td></tr>
+            <tr><td>Fri</td><td>CN</td><td>--</td><td>DBMS</td><td>ST</td><td>OS</td></tr>
+            <tr><td>Sat</td><td>Lab</td><td>Lab</td><td>--</td><td>--</td><td>--</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

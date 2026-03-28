@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | Marks</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header"><h2>College ERP</h2></div>
+    <nav class="sidebar-nav">
+      <a href="student_home.html">🏠 Home</a>
+      <a href="student_attendance.html">📋 Attendance</a>
+      <a href="student_attendance_detail.html">📅 Attendance Detail</a>
+      <a href="student_marks.html" class="active">📊 Marks</a>
+      <a href="student_timetable.html">🕒 Timetable</a>
+      <a href="#">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle">☰</button>
+      <h1>Marks Report</h1>
+    </header>
+
+    <section class="content">
+      <div class="card full">
+        <table>
+          <thead>
+            <tr><th>Course ID</th><th>Course Name</th><th>IA1</th><th>IA2</th><th>IA3</th><th>Event1</th><th>Event2</th><th>SEE</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CS501</td><td>DBMS</td><td>18</td><td>17</td><td>19</td><td>19</td><td>18</td><td>87</td></tr>
+            <tr><td>CS502</td><td>OS</td><td>14</td><td>16</td><td>15</td><td>18</td><td>17</td><td>80</td></tr>
+            <tr><td>CS503</td><td>ST</td><td>19</td><td>20</td><td>18</td><td>19</td><td>20</td><td>90</td></tr>
+            <tr><td>CS504</td><td>CN</td><td>15</td><td>17</td><td>16</td><td>17</td><td>18</td><td>82</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
