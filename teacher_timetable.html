@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timetable - Teacher Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    .navbar h2 { margin: 0; font-size: 1.5rem; }
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1e3a8a; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
+    th { background: #1e3a8a; color: white; }
+    .btn {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #274bb5; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2>DoodleDesk - Timetable</h2>
+  </div>
+  <div class="container">
+    <h1>Your Weekly Timetable</h1>
+    <p>Below is the schedule for your assigned subjects.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Slot</th>
+          <th>Subject</th>
+        </tr>
+      </thead>
+      <tbody id="timetableBody">
+        <tr><td colspan="3">Loading...</td></tr>
+      </tbody>
+    </table>
+    <br>
+    <a href="teaching.html" class="btn">Back to Dashboard</a>
+  </div>
+  <script>
+    async function loadTimetable() {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch("/api/timetable", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const tbody = document.getElementById("timetableBody");
+          tbody.innerHTML = "";
+          if (data.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3'>No timetable slots found.</td></tr>";
+            return;
+          }
+          data.forEach(item => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${item.day}</td>
+                <td>${item.slot}</td>
+                <td>${item.subject}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    window.onload = loadTimetable;
+  </script>
+</body>
+</html>

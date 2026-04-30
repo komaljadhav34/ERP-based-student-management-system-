@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library - Student Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+      color: #333;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    .navbar h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .logout-btn {
+      background: #e74c3c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #1e3a8a;
+    }
+    .content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #1e3a8a;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2>Library</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <h1>Library Management</h1>
+    
+    <div class="content">
+      <h3>Borrow a Book</h3>
+      <input type="text" id="bookTitle" placeholder="Enter book title to borrow">
+      <button onclick="borrowBook()">Borrow Book</button>
+      <p id="msgBox" style="color: green; font-weight: bold;"></p>
+    </div>
+
+    <div class="content">
+      <h3>My Borrowed Books</h3>
+      <table id="booksTable">
+        <thead>
+          <tr>
+            <th>Book Title</th>
+            <th>Borrow Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="booksBody">
+          <!-- books load here -->
+        </tbody>
+      </table>
+    </div>
+    <button onclick="backToDashboard()">Back to Dashboard</button>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.clear();
+      window.location.href = "student-login.html";
+    }
+    function backToDashboard() { window.location.href = "student-dashboard.html"; }
+
+    async function loadBooks() {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch("/api/library", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (res.ok) {
+          const books = await res.json();
+          const tbody = document.getElementById("booksBody");
+          tbody.innerHTML = "";
+          if (books.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='3'>No books borrowed.</td></tr>";
+            return;
+          }
+          books.forEach(b => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${b.book_title}</td>
+                <td>${new Date(b.borrow_date).toLocaleString()}</td>
+                <td>${b.status}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function borrowBook() {
+      const token = localStorage.getItem("token");
+      const title = document.getElementById("bookTitle").value;
+      if (!title) { alert("Enter book title"); return; }
+
+      try {
+        const res = await fetch("/api/library", {
+          method: "POST",
+          headers: { 
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ book_title: title })
+        });
+        if (res.ok) {
+          document.getElementById("msgBox").textContent = "Book borrowed successfully!";
+          document.getElementById("bookTitle").value = "";
+          loadBooks();
+        } else {
+          document.getElementById("msgBox").textContent = "Failed to borrow book.";
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.onload = loadBooks;
+  </script>
+</body>
+</html>

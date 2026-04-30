@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Admissions - CollegeERP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #1e3a8a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #1e3a8a;
+      color: white;
+    }
+    button {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #219150;
+    }
+    .msg {
+      margin-top: 15px;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2><a href="non_teaching_dashboard.html">DoodleDesk</a></h2>
+    <a href="non_teaching_dashboard.html">Back to Dashboard</a>
+  </div>
+
+  <div class="container">
+    <h2>Pending Admissions</h2>
+    <p>Review and approve new student signups.</p>
+    <div class="msg" id="msgBox"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Student ID</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="admissionsTableBody">
+        <!-- populated via js -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "staff-login.html";
+
+    async function loadPending() {
+      try {
+        const res = await fetch("/api/admissions/pending", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) {
+          document.getElementById("msgBox").textContent = "Failed to load.";
+          return;
+        }
+        const data = await res.json();
+        const tbody = document.getElementById("admissionsTableBody");
+        tbody.innerHTML = "";
+        
+        if (data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='5'>No pending admissions.</td></tr>";
+          return;
+        }
+
+        data.forEach(user => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.fullname || "-"}</td>
+            <td>${user.email || "-"}</td>
+            <td>${user.studentId || "-"}</td>
+            <td><button onclick="approve('${user.id}')">Approve</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function approve(userId) {
+      try {
+        const res = await fetch(`/api/admissions/approve/${userId}`, {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (res.ok) {
+          document.getElementById("msgBox").textContent = "Admission approved successfully!";
+          loadPending();
+        } else {
+          document.getElementById("msgBox").textContent = "Failed to approve.";
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.onload = loadPending;
+  </script>
+</body>
+</html>

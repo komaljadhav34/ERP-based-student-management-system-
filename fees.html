@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fees - Student Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+      color: #333;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+
+    .navbar h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .logout-btn {
+      background: #e74c3c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 30px;
+    }
+
+    .content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #333;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    button {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #274bb5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h2>Fees</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <h1>Fee Details</h1>
+    <div class="content" id="feesContent">
+      <!-- Fee info will load here -->
+    </div>
+
+    <h1>Digital Receipts</h1>
+    <div class="content" id="receiptsContent">
+      <!-- Receipts will load here -->
+    </div>
+    
+    <button onclick="backToDashboard()">Back to Dashboard</button>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      window.location.href = "student-login.html";
+    }
+    function backToDashboard() { window.location.href = "student-dashboard.html"; }
+
+    async function loadFees() {
+      const token = localStorage.getItem("token");
+      if (!token) { alert("No student logged in"); window.location.href = "student-login.html"; return; }
+
+      const container = document.getElementById("feesContent");
+
+      try {
+        const response = await fetch("/api/fees", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) logout();
+          throw new Error("Failed to fetch fees");
+        }
+
+        const fees = await response.json();
+
+        if (!fees || fees.length === 0) { container.innerHTML = "<p>No fee data found.</p>"; return; }
+
+        // Calculate if fully paid
+        let html = `
+      <table>
+        <tr><th>Total Amount</th><th>Paid Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+        ${fees.map(f => {
+          const paid = f.paid || 0;
+          const due = f.amount - paid;
+          return `<tr>
+            <td>₹${f.amount}</td>
+            <td>₹${paid}</td>
+            <td>${f.due_date}</td>
+            <td>${due <= 0 ? 'Paid' : 'Pending'}</td>
+            <td>${due > 0 ? `<button onclick="payFee('${f.id}', ${due})">Pay ₹${due}</button>` : '-'}</td>
+          </tr>`;
+        }).join('')}
+      </table>
+    `;
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = "<p>Error loading fees.</p>";
+      }
+    }
+
+    async function loadReceipts() {
+      const token = localStorage.getItem("token");
+      const container = document.getElementById("receiptsContent");
+      try {
+        const res = await fetch("/api/receipts", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (res.ok) {
+          const receipts = await res.json();
+          if (!receipts || receipts.length === 0) {
+            container.innerHTML = "<p>No receipts found.</p>";
+            return;
+          }
+          let html = `
+            <table>
+              <tr><th>Date</th><th>Transaction ID</th><th>Amount Paid</th></tr>
+              ${receipts.map(r => `<tr>
+                <td>${new Date(r.date).toLocaleString()}</td>
+                <td>${r.transaction_id}</td>
+                <td>₹${r.amount_paid}</td>
+              </tr>`).join('')}
+            </table>
+          `;
+          container.innerHTML = html;
+        }
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    async function payFee(feeId, amount) {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch("/api/fees/pay", {
+          method: "POST",
+          headers: { 
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ fee_id: feeId, amount: amount })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          alert(`Payment successful! Transaction ID: ${data.transaction_id}`);
+          loadFees();
+          loadReceipts();
+        } else {
+          alert("Payment failed.");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadFees();
+    loadReceipts();
+  </script>
+</body>
+
+</html>

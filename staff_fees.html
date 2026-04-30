@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Fees - CollegeERP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+
+    .navbar h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-red {
+      background: #e74c3c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-red:hover {
+      background: #c0392b;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #1e3a8a;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    input,
+    select {
+      padding: 8px 12px;
+      width: 100%;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #274bb5;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      background: #1e3a8a;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h2>DoodleDesk</h2>
+    <button class="btn-red" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container">
+    <h1>Manage Fees</h1>
+
+    <label>Student Username:</label>
+    <input type="text" id="studentName" placeholder="Enter student username">
+
+    <label>Amount Paid:</label>
+    <input type="number" id="feeAmount" placeholder="Enter fee amount">
+
+    <button onclick="saveFee()">Save Fee</button>
+
+    <h2>All Fees</h2>
+    <ul id="feeList"></ul>
+
+    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+  </div>
+
+  <script>
+    // Save fee to backend
+    async function saveFee() {
+      let name = document.getElementById("studentName").value.trim();
+      let amount = document.getElementById("feeAmount").value.trim();
+      if (!name || !amount) { alert("Enter name and amount"); return; }
+
+      const token = localStorage.getItem("token");
+      if (!token) { alert("Please login first"); window.location.href = "staff-login.html"; return; }
+
+      try {
+        const response = await fetch("/api/fees", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            student: name,
+            amount: amount,
+            due_date: new Date().toISOString().split('T')[0] // Default to today for now
+          })
+        });
+
+        if (response.ok) {
+          alert("Fee saved! Student will see this on their dashboard.");
+          displayFees();
+        } else {
+          const data = await response.json();
+          alert("Error: " + (data.error || "Failed to save"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error");
+      }
+    }
+
+    // Display all fees
+    async function displayFees() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await fetch("/api/fees", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (response.ok) {
+          const fees = await response.json();
+          let ul = document.getElementById("feeList");
+          ul.innerHTML = "";
+          fees.forEach(f => {
+            let li = document.createElement("li");
+            li.textContent = `${f.student} - ₹${f.amount} (Due: ${f.due_date})`;
+            ul.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    displayFees();
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      window.location.href = "home.html";
+    }
+    function goBack() { window.location.href = "non_teaching_dashboard.html"; }
+  </script>
+</body>
+
+</html>

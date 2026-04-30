@@ -2,6 +2,22 @@
 
 A comprehensive ERP solution for educational institutions, built with a modern web stack. This platform provides distinct interfaces and functionality for Students, Teachers, and Administrators to manage academic activities, administrative tasks, and campus life efficiently.
 
+## 📖 Background & Problem Statement
+
+Admissions, fee collection, hostel allocation, and examination records are traditionally maintained in separate ledgers. Students queue at multiple counters; staff re-enter identical data; and administrators lack a real-time institutional overview. Comprehensive ERP suites can unify data but remain out of financial reach for many public colleges. 
+
+Yet much of the required functionality—customised online forms, central data tables, automated receipts, real-time dashboards—already exists in ubiquitous cloud office suites or can be built with lightweight web technologies. By intelligently connecting these services, an institution can create a single source of truth without large capital outlay. 
+
+## 💡 Expected Solution
+
+Our project outlines an integrated workflow in which:
+- Admission data flows seamlessly into a central student database.
+- Financial transactions automatically generate digital receipts.
+- Hostel and library records update the same database in real time.
+- Summary dashboards present key metrics to administrators.
+
+Essential components include streamlined admission intake, automated fee receipting, live hostel occupancy tracking, and summary dashboards for higher officials. Data security, role-based access and regular back-ups are baked in from day one. This cohesive, low-cost ERP ensures a shallow learning curve and broad adoption.
+
 ## 🚀 Key Features
 
 ### 🎓 Student Features

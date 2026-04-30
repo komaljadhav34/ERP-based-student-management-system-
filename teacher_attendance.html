@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enter Attendance - CollegeERP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1e3a8a;
+    }
+
+    .date-day {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    button {
+      border: 1px solid black;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 2px;
+      font-weight: bold;
+      background: white;
+      color: black;
+      transition: background 0.3s;
+    }
+
+    .submit-btn {
+      margin-top: 25px;
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .submit-btn:hover {
+      background: #274bb5;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background: #555;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #1e3a8a;
+      color: white;
+    }
+
+    .filters {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .filters select {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>Enter Attendance</h2>
+    <div class="date-day" id="dateDay"></div>
+
+    <button type="button" class="back-btn" onclick="goToDashboard()">Back to Dashboard</button>
+
+    <div class="filters">
+      <select id="filterBranch" onchange="filterStudents()">
+        <option value="">All Branches</option>
+        <option value="CSE">CSE</option>
+        <option value="IT">IT</option>
+        <option value="ENTC">ENTC</option>
+        <option value="Mech">Mechanical</option>
+        <option value="Civil">Civil</option>
+      </select>
+      <select id="filterYear" onchange="filterStudents()">
+        <option value="">All Years</option>
+        <option value="FE">FE</option>
+        <option value="SE">SE</option>
+        <option value="TE">TE</option>
+        <option value="BE">BE</option>
+      </select>
+    </div>
+
+    <form id="attendanceForm">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Student Name</th>
+            <th>Details</th>
+            <th>Mark Attendance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be populated dynamically -->
+        </tbody>
+      </table>
+
+      <button type="submit" class="submit-btn">Submit Attendance</button>
+    </form>
+  </div>
+
+  <script>
+    // Live updating date and day
+    function updateDateDay() {
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById("dateDay").innerText = today.toLocaleDateString("en-US", options);
+    }
+
+    updateDateDay(); // initial load
+    setInterval(updateDateDay, 1000); // update every second
+
+    let allStudents = [];
+
+    // Fetch students on load
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) { window.location.href = "staff-login.html"; return; }
+
+      try {
+        const response = await fetch("/api/students", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (response.ok) {
+          allStudents = await response.json();
+          // Sort by branch then year then name
+          allStudents.sort((a, b) => (a.branch || "").localeCompare(b.branch || "") || (a.year || "").localeCompare(b.year || "") || a.username.localeCompare(b.username));
+
+          filterStudents(); // Initial render
+        } else {
+          console.error("Failed to fetch students");
+          const errText = await response.text();
+          alert("Failed to load students: " + response.status + " " + response.statusText + "\n" + errText);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error loading students: " + err.message);
+      }
+    });
+
+    function filterStudents() {
+      const branch = document.getElementById("filterBranch").value;
+      const year = document.getElementById("filterYear").value;
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = "";
+
+      const filtered = allStudents.filter(s => {
+        return (branch === "" || s.branch === branch) && (year === "" || s.year === year);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='4'>No students found</td></tr>";
+        return;
+      }
+
+      filtered.forEach((s, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${s.fullname || s.username}</td>
+          <td>${s.branch || "-"} / ${s.year || "-"}</td>
+          <td>
+            <button type="button" onclick="markAttendance(this, 'Present')">Present</button>
+            <button type="button" onclick="markAttendance(this, 'Absent')">Absent</button>
+            <input type="hidden" name="attendance_${s.username}" value="" data-username="${s.username}">
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Mark attendance
+    function markAttendance(button, status) {
+      const row = button.parentElement;
+      const hiddenInput = row.querySelector("input[type='hidden']");
+      hiddenInput.value = status;
+
+      // Reset both buttons to default
+      row.querySelectorAll("button").forEach(btn => {
+        btn.style.background = 'white';
+        btn.style.color = 'black';
+      });
+
+      // Set clicked button color
+      if (status === 'Present') {
+        button.style.background = 'green';
+        button.style.color = 'white';
+      } else {
+        button.style.background = 'red';
+        button.style.color = 'white';
+      }
+    }
+
+    // Submit attendance
+    document.getElementById("attendanceForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const token = localStorage.getItem("token");
+      if (!token) { alert("Please login first"); window.location.href = "staff-login.html"; return; }
+
+      // Collect data
+      const rows = document.querySelectorAll("tbody tr");
+      const promises = [];
+
+      rows.forEach(row => {
+        const input = row.querySelector("input[type='hidden']");
+        if (!input) return;
+
+        const studentUsername = input.dataset.username;
+        const status = input.value;
+
+        if (status) {
+          const p = fetch("/api/attendance", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+              student: studentUsername,
+              date: new Date().toISOString().split('T')[0],
+              status: status
+            })
+          });
+          promises.push(p);
+        }
+      });
+
+      try {
+        await Promise.all(promises);
+        alert("Attendance submitted successfully!");
+        // Reset form UI
+        rows.forEach(row => {
+          const input = row.querySelector("input[type='hidden']");
+          if (input) input.value = "";
+          row.querySelectorAll("button").forEach(btn => {
+            btn.style.background = 'white';
+            btn.style.color = 'black';
+          });
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Error submitting attendance");
+      }
+    });
+
+    // Back to dashboard
+    function goToDashboard() {
+      window.location.href = "teaching.html";
+    }
+  </script>
+
+</body>
+
+</html>

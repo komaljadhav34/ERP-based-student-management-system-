@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - DoodleDesk</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      background: url('home.jpg') no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+      color: white;
+    }
+    .login-box h2 {
+      margin-bottom: 20px;
+    }
+    .login-box input, .login-box button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    .login-box input {
+      background: #f1f1f1;
+    }
+    .login-box button {
+      background: #ff9800;
+      color: white;
+      cursor: pointer;
+    }
+    .login-box button:hover {
+      background: #e68900;
+    }
+    .error {
+      color: red;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <form id="adminForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+      <p id="errorMsg" class="error"></p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("adminForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (username === "" || password === "") {
+        errorMsg.textContent = "Both fields are required!";
+        return;
+      }
+      if (password.length < 6) {
+        errorMsg.textContent = "Password must be at least 6 characters!";
+        return;
+      }
+
+      errorMsg.textContent = "";
+      alert("Login successful (Admin) ✅");
+    });
+  </script>
+</body>
+</html>

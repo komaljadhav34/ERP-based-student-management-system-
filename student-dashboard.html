@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - DoodleDesk</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f4f9ff;
+      color: #333;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      background: linear-gradient(90deg, #1e3a8a, #60a5fa);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+
+    .navbar h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .logout-btn {
+      background: #e74c3c;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    /* Main content */
+    .container {
+      max-width: 1200px;
+      margin: 50px auto;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #1e3a8a;
+      margin-bottom: 40px;
+    }
+
+    /* Dashboard cards */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      text-align: center;
+      padding: 25px 15px;
+      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .card img {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+
+    .card .btn {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .card .btn:hover {
+      background-color: #274bb5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h2>DoodleDesk</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Welcome, Student!</h1>
+
+    <div class="dashboard">
+      <!-- Academics -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Academics">
+        <div class="card-title">Academics</div>
+        <div class="card-text">
+          View your courses, subjects, and academic details.
+        </div>
+        <a href="academics.html" class="btn">View Academics</a>
+      </div>
+
+      <!-- Fees -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/1170/1170576.png" alt="Fees">
+        <div class="card-title">Fees</div>
+        <div class="card-text">
+          Check your fee status and make payments online.
+        </div>
+        <a href="fees.html" class="btn">View Fees</a>
+      </div>
+
+      <!-- Hostel -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2910/2910762.png" alt="Hostel">
+        <div class="card-title">Hostel</div>
+        <div class="card-text">
+          Access hostel details, room info, and facilities.
+        </div>
+        <a href="hostel.html" class="btn">View Hostel</a>
+      </div>
+
+      <!-- Library -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3389/3389081.png" alt="Library">
+        <div class="card-title">Library</div>
+        <div class="card-text">
+          Access library catalog, borrow books, and view your reading history.
+        </div>
+        <a href="library.html" class="btn">View Library</a>
+      </div>
+
+      <!-- Exams -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2907/2907131.png" alt="Exams">
+        <div class="card-title">Exams</div>
+        <div class="card-text">
+          See your exam schedules, results, and notifications.
+        </div>
+        <a href="exams.html" class="btn">View Exams</a>
+      </div>
+
+      <!-- Profile -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Profile">
+        <div class="card-title">Profile</div>
+        <div class="card-text">
+          Manage your personal information and settings.
+        </div>
+        <a href="profile.html" class="btn">View Profile</a>
+      </div>
+
+      <!-- Help Desk -->
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" alt="Help Desk">
+        <div class="card-title">Help Desk</div>
+        <div class="card-text">
+          Contact support for any assistance or queries.
+        </div>
+        <a href="helpdesk.html" class="btn">Contact Help Desk</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check auth and load profile
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "student-login.html";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/profile", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (response.ok) {
+          const user = await response.json();
+          document.querySelector("h1").textContent = `Welcome, ${user.fullname || user.username}!`;
+        } else {
+          // Token invalid or expired
+          logout();
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+      alert("Logged out successfully!");
+      window.location.href = "home.html";
+    }
+  </script>
+
+</body>
+
+</html>
