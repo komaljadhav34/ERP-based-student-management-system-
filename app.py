@@ -22,7 +22,7 @@ SECRET = os.environ.get("ERP_SECRET", "supersecretkey")
 JWT_ALGO = "HS256"
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/erp_db")
 
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="/")
+app = Flask(__name__)
 CORS(app)
 
 # ---------- Database helpers ----------
@@ -122,7 +122,12 @@ def auth_required(role=None):
 @app.route("/<path:path>")
 def frontend(path):
     if not Path(FRONTEND_DIR).exists():
-        return jsonify({"error":"frontend not found on server. Please copy frontend files to backend/frontend"}), 404
+        return f"FRONTEND_DIR {FRONTEND_DIR} not found on server.", 404
+        
+    file_path = Path(FRONTEND_DIR) / path
+    if not file_path.exists():
+        return f"Error: '{path}' not found in directory '{FRONTEND_DIR}' (Resolved from __file__: {__file__}). Please check your Render Start Command and Root Directory settings.", 404
+        
     return send_from_directory(FRONTEND_DIR, path)
 
 # ---------- Auth endpoints ----------
